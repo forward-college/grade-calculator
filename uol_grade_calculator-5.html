@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forward College | Grade Calculator</title>
+<link rel="icon" type="image/png" href="assets/favicon-orange.png" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #011232;
+  --navy-light: #1a2a4a;
+  --coral: #F56134;
+  --coral-light: #ff7a55;
+  --white: #ffffff;
+  --off-white: #F9F7F4;
+  --border: #E0D5CC;
+  --text: #011232;
+  --text-muted: #617080;
+  --first-bg: #e8f5e9; --first-text: #1b5e20; --first-border: #a5d6a7;
+  --upper-bg: #fff4f0; --upper-text: #c04010; --upper-border: #f8c4aa;
+  --lower-bg: #fff8e1; --lower-text: #6d4c00; --lower-border: #ffd54f;
+  --third-bg: #fff3e0; --third-text: #bf360c; --third-border: #ffcc80;
+  --fail-bg:  #fce4ec; --fail-text:  #880e4f; --fail-border: #f48fb1;
+  --pass-bg: #e8eaf6; --pass-text: #283593; --pass-border: #9fa8da;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--off-white);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  padding: 0 32px;
+  height: 80px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-badge {
+  font-size: 11px; font-weight: 500;
+  color: var(--text-muted);
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  padding: 4px 12px; border-radius: 20px;
+}
+
+/* ── HERO ── */
+.hero {
+  background: #fff;
+  padding: 56px 32px 52px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(241,90,41,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fff4f0;
+  border: 1px solid #fcd5c0;
+  color: var(--coral);
+  font-size: 11.5px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+.hero h1 span { color: var(--coral); }
+.hero p {
+  font-size: 16px; font-weight: 400;
+  color: var(--text-muted);
+  max-width: 520px; margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── MAIN ── */
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* ── STEP BLOCK ── */
+.step {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: box-shadow .2s;
+}
+.step:has(.step-body:not(.hidden)) {
+  box-shadow: 0 4px 24px rgba(26,46,74,0.07);
+}
+.step-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+}
+.step-num {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--coral);
+  color: white;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.step-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.step-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+.step-body { padding: 24px; }
+.step-body.hidden { display: none; }
+
+/* ── DEGREE GRID ── */
+.degree-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+.degree-btn {
+  border: 1.5px solid var(--border);
+  background: var(--off-white);
+  padding: 13px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--text);
+  transition: all .15s;
+  line-height: 1.4;
+}
+.degree-btn:hover { border-color: var(--coral); background: white; color: var(--text); }
+.degree-btn.active {
+  border-color: var(--coral);
+  background: var(--coral);
+  color: white;
+}
+.degree-btn .deg-prefix {
+  display: block;
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 3px;
+}
+
+/* ── ROUTE BUTTONS ── */
+.route-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.route-btn {
+  border: 1.5px solid var(--border);
+  background: var(--off-white);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--text);
+  transition: all .15s;
+}
+.route-btn:hover { border-color: var(--coral); background: white; }
+.route-btn.active { border-color: var(--coral); background: var(--coral); color: white; }
+
+/* ── HINT ── */
+.hint-box {
+  display: flex; gap: 10px;
+  background: #fff4f0;
+  border: 1px solid #fcd5c0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #7a2800;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.hint-box .hint-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── COURSE TABLE ── */
+.course-table { width: 100%; border-collapse: collapse; }
+.course-table thead th {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-muted);
+  padding: 0 0 12px 0; text-align: left; border-bottom: 1px solid var(--border);
+}
+.course-table thead th:last-child,
+.course-table tbody td:last-child { text-align: right; }
+.course-table tbody tr { border-bottom: 1px solid var(--off-white); }
+.course-table tbody tr:last-child { border-bottom: none; }
+.course-table tbody td { padding: 10px 0; vertical-align: middle; }
+
+/* ── FIRST YEAR BRACKET ── */
+.table-with-bracket { display: flex; gap: 0; align-items: flex-start; }
+.fy-bracket {
+  flex-shrink: 0;
+  width: 20px;
+  margin-right: 8px;
+  position: relative;
+}
+.fy-bracket-inner {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 20px;
+}
+.fy-bracket-line {
+  width: 2px;
+  background: #f8c4aa;
+  border-radius: 2px;
+}
+.fy-toggle-btn {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid #f8c4aa;
+  background: #fff4f0;
+  color: #c04010;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s;
+  padding: 0;
+  line-height: 1;
+  font-weight: 700;
+}
+.fy-toggle-btn:hover { background: #fcd5c0; border-color: var(--coral); }
+.fy-bracket-table { flex: 1; min-width: 0; }
+
+.lvl-badge {
+  display: inline-block;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
+  padding: 2px 7px; border-radius: 5px;
+}
+.lvl-100 { background: #fff4f0; color: #c04010; }
+.lvl-200 { background: #fff3e0; color: #7a4800; }
+.lvl-300 { background: #fce4ec; color: #880e4f; }
+
+.course-name-cell { padding-left: 12px; font-size: 13px; color: var(--text); line-height: 1.4; }
+.course-credit { font-size: 11px; color: var(--text-muted); font-weight: 400; margin-left: 5px; }
+
+.mark-input {
+  width: 68px;
+  border: 1.5px solid var(--border);
+  background: var(--off-white);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600;
+  text-align: center;
+  color: var(--text);
+  transition: all .15s;
+  -moz-appearance: textfield;
+  outline: none;
+}
+.mark-input::-webkit-outer-spin-button,
+.mark-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.mark-input:focus { border-color: var(--coral); background: white; box-shadow: 0 0 0 3px rgba(241,90,41,0.10); }
+.mark-input.g-first { border-color: var(--first-border); background: var(--first-bg); color: var(--first-text); }
+.mark-input.g-upper { border-color: var(--upper-border); background: var(--upper-bg); color: var(--upper-text); }
+.mark-input.g-lower { border-color: var(--lower-border); background: var(--lower-bg); color: var(--lower-text); }
+.mark-input.g-third { border-color: var(--third-border); background: var(--third-bg); color: var(--third-text); }
+.mark-input.g-fail  { border-color: var(--fail-border);  background: var(--fail-bg);  color: var(--fail-text); }
+
+.grade-tag {
+  display: inline-block; min-width: 44px;
+  font-size: 11px; font-weight: 600; text-align: center;
+  padding: 3px 8px; border-radius: 6px;
+}
+.g-first-tag { background: var(--first-bg); color: var(--first-text); }
+.g-upper-tag { background: var(--upper-bg); color: var(--upper-text); }
+.g-lower-tag { background: var(--lower-bg); color: var(--lower-text); }
+.g-third-tag { background: var(--third-bg); color: var(--third-text); }
+.g-fail-tag  { background: var(--fail-bg);  color: var(--fail-text); }
+.g-blank-tag { background: var(--off-white); color: var(--text-muted); }
+
+/* ── CALCULATE BUTTON ── */
+.calc-btn-wrap { margin-top: 24px; }
+.calc-btn {
+  width: 100%;
+  background: var(--coral);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 15px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  letter-spacing: -0.2px;
+}
+.calc-btn:hover { background: var(--coral-light); }
+.calc-btn:active { transform: scale(0.99); }
+
+/* ── RESULT ── */
+#result-panel { margin-top: 0; }
+.result-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(26,46,74,0.12);
+}
+.result-banner {
+  padding: 36px 32px 28px;
+  text-align: center;
+}
+.result-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.7; margin-bottom: 10px;
+}
+.result-title {
+  font-size: clamp(22px, 4vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+}
+.result-sub { font-size: 13px; margin-top: 8px; opacity: 0.7; }
+.banner-first  { background: var(--first-text); color: white; }
+.banner-upper  { background: #e8521e; color: white; }
+.banner-lower  { background: #7a4800; color: white; }
+.banner-third  { background: #bf360c; color: white; }
+.banner-fail   { background: #880e4f; color: white; }
+.banner-neutral{ background: var(--coral); color: white; }
+
+.result-body { background: white; padding: 24px; }
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-box {
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.stat-label { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+.stat-val { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+
+.marks-section-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.marks-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 18px; align-items: flex-end; }
+.chip {
+  font-size: 12px; font-weight: 600;
+  padding: 4px 7px; border-radius: 6px;
+  border: 1px solid transparent;
+}
+.chip-first  { background: var(--first-bg); color: var(--first-text); border-color: var(--first-border); }
+.chip-upper  { background: #fff4f0; color: #c04010; border-color: #f8c4aa; }
+.chip-lower  { background: var(--lower-bg); color: var(--lower-text); border-color: var(--lower-border); }
+.chip-third  { background: var(--third-bg); color: var(--third-text); border-color: var(--third-border); }
+.chip-fail   { background: var(--fail-bg);  color: var(--fail-text);  border-color: var(--fail-border); }
+.chip-est    { background: #f0f0f0; color: #555; border: 1px dashed #bbb; font-style: italic; }
+.num-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 26px; height: 22px;
+  border-radius: 6px;
+  font-size: 12px; font-weight: 700;
+  padding: 0 7px;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+.num-badge.nb-first { background: var(--first-bg); color: var(--first-text); border: 1px solid var(--first-border); }
+.num-badge.nb-upper { background: var(--upper-bg); color: var(--upper-text); border: 1px solid var(--upper-border); }
+.num-badge.nb-lower { background: var(--lower-bg); color: var(--lower-text); border: 1px solid var(--lower-border); }
+
+.note-card {
+  background: var(--off-white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+.note-card:empty { display: none; }
+.note-card strong { color: var(--text); }
+
+.grad-status {
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 12.5px;
+  line-height: 1.65;
+  margin-bottom: 16px;
+}
+.grad-status.eligible    { background:#e8f5e9; border:1px solid #a5d6a7; color:#1b5e20; }
+.grad-status.unclassified{ background:#fff8e1; border:1px solid #ffd54f; color:#6d4c00; }
+.grad-status.not-eligible{ background:#fce4ec; border:1px solid #f48fb1; color:#880e4f; }
+.grad-status .gs-title   { font-weight:700; margin-bottom:4px; }
+.grad-conditions { list-style:none; padding:0; margin:6px 0 0; }
+.grad-conditions li { display:flex; gap:8px; align-items:flex-start; margin-bottom:3px; }
+.grad-conditions li .ck { flex-shrink:0; font-size:13px; margin-top:1px; }
+
+/* ── SCENARIOS ── */
+.scenarios-section { margin-top: 20px; }
+.scenarios-label {
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+.scenario-card {
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  background: white;
+}
+.scenario-card.sc-first  { border-color: var(--first-border); background: var(--first-bg); }
+.scenario-card.sc-upper  { border-color: var(--upper-border); background: var(--upper-bg); }
+.scenario-card.sc-lower  { border-color: var(--lower-border); background: var(--lower-bg); }
+.scenario-card.sc-third  { border-color: var(--third-border); background: var(--third-bg); }
+.scenario-card.sc-impossible { border-color: var(--border); background: var(--off-white); opacity: 0.6; }
+.scenario-card.sc-resit  { border-color: var(--fail-border); background: var(--fail-bg); }
+.sc-resit .scenario-badge { background: var(--fail-text); color: white; }
+.sc-resit .scenario-paths li { color: var(--fail-text); }
+.scenario-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+}
+.scenario-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  padding: 3px 9px; border-radius: 6px;
+  white-space: nowrap;
+}
+.sc-first  .scenario-badge { background: var(--first-text); color: white; }
+.sc-upper  .scenario-badge { background: #e8521e; color: white; }
+.sc-lower  .scenario-badge { background: #7a4800; color: white; }
+.sc-third  .scenario-badge { background: #bf360c; color: white; }
+.sc-impossible .scenario-badge { background: #999; color: white; }
+.scenario-card.sc-pass { border-color: var(--pass-border); background: var(--pass-bg); }
+.sc-pass .scenario-badge { background: #283593; color: white; }
+.sc-pass .scenario-likelihood { color: var(--pass-text); }
+.scenario-likelihood {
+  font-size: 11.5px; font-weight: 600;
+}
+.sc-first  .scenario-likelihood { color: var(--first-text); }
+.sc-upper  .scenario-likelihood { color: #c04010; }
+.sc-lower  .scenario-likelihood { color: var(--lower-text); }
+.sc-third  .scenario-likelihood { color: var(--third-text); }
+.sc-impossible .scenario-likelihood { color: #999; }
+
+.scenario-paths {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.scenario-paths li {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text);
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.sc-impossible .scenario-paths li { color: var(--text-muted); }
+.scenario-paths li .path-bullet { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── TOOLTIP HINT ── */
+.hint-q {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.12);
+  color: inherit;
+  font-size: 9px; font-weight: 700;
+  cursor: default;
+  position: relative;
+  vertical-align: middle;
+  margin-left: 3px;
+  flex-shrink: 0;
+}
+.hint-q::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%; transform: translateX(-50%);
+  background: #011232;
+  color: #fff;
+  font-size: 11px; font-weight: 400;
+  white-space: nowrap;
+  padding: 5px 9px;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  z-index: 10;
+}
+.hint-q:hover::after { opacity: 1; }
+
+/* ── CARD INFO BADGE ── */
+.scenario-card { position: relative; }
+.card-info {
+  position: absolute; top: 10px; right: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.07);
+  color: inherit;
+  font-size: 11px; font-weight: 600;
+  opacity: 0.4;
+  cursor: default;
+  flex-shrink: 0;
+  transition: opacity .15s;
+}
+.card-info:hover { opacity: 0.85; }
+.card-info::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  right: calc(100% + 8px); left: auto;
+  background: #011232;
+  color: #fff;
+  font-size: 11px; font-weight: 400;
+  white-space: nowrap;
+  max-width: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  z-index: 10;
+  line-height: 1.5;
+}
+.card-info:hover::after { opacity: 1; }
+
+/* ── FOOTER SPACE ── */
+.hidden { display: none !important; }
+
+@media (max-width: 640px) {
+  nav { padding: 0 16px; }
+  .hero { padding: 40px 20px 36px; }
+  main { padding: 24px 14px 60px; }
+  .step-body { padding: 16px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .degree-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <img src="assets/logo-horizontal.png" alt="Forward College" style="height: 28px; display: block;" />
+  </div>
+  <img src="assets/uol-logo.webp" alt="University of London" style="height: 45px; object-fit: contain" />
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">BSc Degree Classification Tool</div>
+  <h1>Grade <span>Calculator</span></h1><div style="font-size:0.75rem;color:#aaa;margin-top:-4px;margin-bottom:20px;letter-spacing:0.05em;"><i>Updated September 2026</i></div>
+  <p>Enter your course marks to find your current standing or project your final degree classification, built on the official UoL Scheme of Award.</p>
+</div>
+
+<main>
+
+  <!-- STEP 1 -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Select your degree programme</div>
+        <div class="step-sub">Choose the BSc you are enrolled in</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="degree-grid" id="degree-grid"></div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step hidden" id="route-step">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">Select your route</div>
+        <div class="step-sub">Select your entry route</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="route-row" id="route-row"></div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step hidden" id="grades-step">
+    <div class="step-header">
+      <div class="step-num" id="grades-step-num">3</div>
+      <div>
+        <div class="step-title">Enter your course marks</div>
+        <div class="step-sub">Leave blank for courses not yet sat</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="hint-box">
+        <span class="hint-icon">ℹ️</span>
+        <span id="hint-text"><em>100-level courses</em> contribute to only 1/9th of your final grade. Their weighted average generates <span class="num-badge nb-upper">2</span> classification marks.<br><strong>200/300-level courses:</strong> full courses contribute <span class="num-badge nb-upper">2</span> classification marks each (worth 1/9th of your grade); half courses contribute <span class="num-badge nb-upper">1</span> classification mark (worth 1/18th).</span>
+      </div>
+      <div class="table-with-bracket" id="table-bracket-wrap">
+        <div class="fy-bracket" id="fy-bracket" style="display:none">
+          <div class="fy-bracket-inner" id="fy-bracket-inner">
+            <div class="fy-bracket-line" id="fy-line-top" style="height:0"></div>
+            <button class="fy-toggle-btn" id="fy-toggle-btn" onclick="toggleFirstYear()" title="Group first-year courses">−</button>
+            <div class="fy-bracket-line" id="fy-line-bottom" style="height:0"></div>
+          </div>
+        </div>
+        <div class="fy-bracket-table">
+          <table class="course-table">
+            <thead>
+              <tr>
+                <th style="width:44px">Level</th>
+                <th>Course</th>
+                <th style="width:80px; text-align:right">Mark</th>
+                <th style="width:58px; text-align:right">Grade</th>
+              </tr>
+            </thead>
+            <tbody id="course-rows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="calc-btn-wrap">
+        <button class="calc-btn" id="calc-btn" onclick="calculate()">Calculate my classification →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result-panel" style="display:none">
+    <div class="result-card">
+      <div id="result-banner" class="result-banner banner-neutral">
+        <div class="result-eyebrow" id="result-eyebrow">Classification</div>
+        <div class="result-title" id="result-title">—</div>
+        <div class="result-sub" id="result-sub"></div>
+      </div>
+      <div class="result-body">
+        <div id="grad-status-box"></div>
+        <div class="stats-row" id="stats-row"></div>
+        <div class="marks-section-label">Classification marks entered</div>
+        <div class="marks-chips" id="marks-chips"></div>
+        <div class="note-card" id="note-card"></div>
+        <div id="scenarios-section" class="scenarios-section hidden">
+          <div class="scenarios-label">What you need for each classification</div>
+          <div id="scenarios-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const DEGREES = {
+  "Business and Management": {
+    standard: [
+      {point:1, code:"EC1002", name:"Introduction to Economics", credits:30, level:100},
+      {point:2, code:"MT105A", name:"Mathematics 1", credits:15, level:100},
+      {point:2, code:"ST104A", name:"Statistics 1", credits:15, level:100},
+      {point:3, code:"AC1025", name:"Principles of Accounting", credits:30, level:100},
+      {point:4, code:"MN1178", name:"Business & Management in a Global Context", credits:30, level:100},
+      {point:5, code:"MN2177", name:"Core Management Concepts", credits:30, level:200},
+      {point:6, code:"OPT1",   name:"Elective course", credits:30, level:200, optional:true},
+      {point:7, code:"OPT2",   name:"Elective course", credits:30, level:200, optional:true},
+      {point:8, code:"OPT3",   name:"Elective course", credits:30, level:200, optional:true},
+      {point:9, code:"OPT4",   name:"300-level elective course", credits:30, level:300, optional:true},
+      {point:10,code:"OPT5",   name:"300-level MN course", credits:30, level:300, optional:true},
+      {point:11,code:"OPT6",   name:"300-level MN course", credits:30, level:300, optional:true},
+      {point:12,code:"OPT7",   name:"Any course (elective)", credits:30, level:300, optional:true},
+    ]
+  },
+  "Economics and Management": {
+    standard: [
+      {point:1, code:"EC1002", name:"Introduction to Economics", credits:30, level:100},
+      {point:2, code:"MT105A", name:"Mathematics 1", credits:15, level:100},
+      {point:2, code:"ST104A", name:"Statistics 1", credits:15, level:100},
+      {point:3, code:"AC1025", name:"Principles of Accounting", credits:30, level:100},
+      {point:4, code:"MN1178", name:"Business & Management in a Global Context", credits:30, level:100},
+      {point:5, code:"MN2177", name:"Core Management Concepts", credits:30, level:200},
+      {point:6, code:"EC2066/MN2028", name:"Microeconomics / Managerial Economics", credits:30, level:200},
+      {point:7, code:"EC2065", name:"Macroeconomics", credits:30, level:200},
+      {point:8, code:"OPT1",   name:"200/300-level elective course", credits:30, level:200, optional:true},
+      {point:9, code:"OPT2",   name:"300-level EC course", credits:30, level:300, optional:true},
+      {point:10,code:"OPT3",   name:"300-level MN course", credits:30, level:300, optional:true},
+      {point:11,code:"OPT4",   name:"300-level EC / elective course", credits:30, level:300, optional:true},
+      {point:12,code:"OPT5",   name:"Any course (elective)", credits:30, level:300, optional:true},
+    ]
+  },
+  "Economics and Politics": {
+    standard: [
+      {point:1, code:"EC1002", name:"Introduction to Economics", credits:30, level:100},
+      {point:2, code:"MT105A", name:"Mathematics 1", credits:15, level:100},
+      {point:2, code:"ST104A", name:"Statistics 1", credits:15, level:100},
+      {point:3, code:"PS1130", name:"Intro to International Political Thought", credits:30, level:100},
+      {point:4, code:"PS1172", name:"Introduction to Political Science", credits:30, level:100},
+      {point:5, code:"EC2065", name:"Macroeconomics", credits:30, level:200},
+      {point:6, code:"EC2066", name:"Microeconomics", credits:30, level:200},
+      {point:7, code:"PS2082", name:"Comparative Politics", credits:30, level:200},
+      {point:8, code:"EC2199", name:"The World Economy (Industrial Revolution to Present)", credits:30, level:200},
+      {point:9, code:"PS3086", name:"Democracy and Democratisation", credits:30, level:300},
+      {point:10,code:"OPT1",   name:"300-level EC course", credits:30, level:300, optional:true},
+      {point:11,code:"OPT2",   name:"300-level IR course", credits:30, level:300, optional:true},
+      {point:12,code:"OPT3",   name:"Any course (elective)", credits:30, level:300, optional:true},
+    ]
+  },
+  "Economics": {
+    standard: [
+      {point:1, code:"EC1002", name:"Introduction to Economics", credits:30, level:100},
+      {point:2, code:"MT1186/MT105AB", name:"Mathematical Methods / Mathematics 1+2", credits:30, level:100},
+      {point:3, code:"ST1215/ST104AB", name:"Intro Mathematical Statistics / Statistics 1+2", credits:30, level:100},
+      {point:4, code:"OPT0",  name:"100-level course / EC2199 (elective)", credits:30, level:100, optional:true},
+      {point:5, code:"EC2020", name:"Elements of Econometrics", credits:30, level:200},
+      {point:6, code:"EC2065", name:"Macroeconomics", credits:30, level:200},
+      {point:7, code:"EC2066", name:"Microeconomics", credits:30, level:200},
+      {point:8, code:"OPT1",   name:"200/300-level course (elective)", credits:30, level:200, optional:true},
+      {point:9, code:"OPT2",   name:"300-level EC course", credits:30, level:300, optional:true},
+      {point:10,code:"OPT3",   name:"300-level EC course", credits:30, level:300, optional:true},
+      {point:11,code:"OPT4",   name:"300-level EC/FN course", credits:30, level:300, optional:true},
+      {point:12,code:"OPT5",   name:"Any course (elective)", credits:30, level:300, optional:true},
+    ]
+  },
+  "Data Science & Business Analytics": {
+    standard: [
+      {point:1, code:"EC1002", name:"Introduction to Economics", credits:30, level:100},
+      {point:2, code:"MT105AB/MT1174/MT1186", name:"Mathematics 1+2 / Calculus / Maths Methods", credits:30, level:100},
+      {point:3, code:"MT1173/MN1178", name:"Algebra / Business & Management Global Context", credits:30, level:100},
+      {point:4, code:"ST1215/ST104AB", name:"Intro Mathematical Statistics / Statistics 1+2", credits:30, level:100},
+      {point:5, code:"ST2195", name:"Programming for Data Science", credits:30, level:200},
+      {point:6, code:"ST2187", name:"Business Analytics, Applied Modelling & Prediction", credits:30, level:200},
+      {point:7, code:"ST2133", name:"Advanced Statistics: Distribution Theory", credits:15, level:200},
+      {point:7, code:"ST2134", name:"Advanced Statistics: Statistical Inference", credits:15, level:200},
+      {point:8, code:"OPT1",   name:"EC2020 / MT2116 / IS2184 (choice)", credits:30, level:200, optional:true},
+      {point:9, code:"OPT2",   name:"300-level EC/MN/MT/ST course", credits:30, level:300, optional:true},
+      {point:10,code:"ST3188", name:"Statistical Methods for Market Research", credits:30, level:300},
+      {point:11,code:"ST3189", name:"Machine Learning", credits:30, level:300},
+      {point:12,code:"OPT3",   name:"Any course (elective)", credits:30, level:300, optional:true},
+    ]
+  },
+  "Politics and International Relations": {
+    standard: [
+      {point:1, code:"IR1198", name:"International Relations: Theories, Concepts & Debates", credits:30, level:100},
+      {point:2, code:"PS1130", name:"Introduction to International Political Thought", credits:30, level:100},
+      {point:3, code:"PS1172", name:"Introduction to Political Science", credits:30, level:100},
+      {point:4, code:"OPT-100", name:"100-level elective: Intro to Intl Development (DV1171) or World History since 1945 (IR1034)", credits:30, level:100, optional:true},
+      {point:5, code:"IR3210", name:"International Political Economy", credits:30, level:200},
+      {point:6, code:"PS2082", name:"Comparative Politics", credits:30, level:200},
+      {point:7, code:"OPT-200", name:"200-level elective: International Political Theory (IR2209) or Foreign Policy Analysis (IR2214)", credits:30, level:200, optional:true},
+      {point:8, code:"PS3086", name:"Democracy and Democratisation", credits:30, level:300},
+      {point:9, code:"IR3140", name:"Security in International Relations", credits:30, level:300},
+      {point:10,code:"IR3210", name:"International Organisations", credits:30, level:300},
+      {point:11,code:"OPT-300A", name:"300-level elective (choose 2 of 4): Complex Emergencies / Development Management / Dissertation / Entrepreneurship", credits:30, level:300, optional:true},
+      {point:12,code:"OPT-300B", name:"300-level elective (choose 2 of 4): Complex Emergencies / Development Management / Dissertation / Entrepreneurship", credits:30, level:300, optional:true},
+    ]
+  },
+  "Psychology": {
+    _scheme: 'psychology',
+    standard: [
+      // FHEQ Level 4
+      {code:"PL1005", name:"Research Design and Statistics 1A", credits:15, level:100},
+      {code:"PL1010", name:"Research Design and Statistics 1B", credits:15, level:100},
+      {code:"PL1015", name:"Applications of Psychology", credits:15, level:100},
+      {code:"PL1020", name:"Developmental Psychology", credits:15, level:100},
+      {code:"PL1025", name:"Learning, Personality and Intelligence", credits:15, level:100},
+      {code:"PL1030", name:"Biological Psychology", credits:15, level:100},
+      {code:"PL1035", name:"Social Psychology", credits:15, level:100},
+      {code:"PL1040", name:"Research Skills 1: Qualitative Skills", credits:15, level:100},
+      // FHEQ Level 5
+      {code:"PL2005", name:"Research Skills 2: Literature Skills", credits:15, level:200},
+      {code:"PL2010", name:"Cognitive Psychology", credits:15, level:200},
+      {code:"PL2015", name:"Understanding Individual Differences", credits:15, level:200},
+      {code:"PL2020", name:"Research Design and Statistics 2A: Analysis of Variance", credits:15, level:200},
+      {code:"PL2025", name:"Health and Addictive Behaviours", credits:15, level:200},
+      {code:"PL2030", name:"Research Design and Statistics 2B: Multivariate Measures", credits:15, level:200},
+      {code:"PL2035", name:"Philosophy of Psychology", credits:15, level:200},
+      {code:"PL2040", name:"Clinical Psychology", credits:15, level:200},
+      // FHEQ Level 6
+      {code:"PL3005", name:"Current Issues in Neuroscience", credits:15, level:300},
+      {code:"PL3010", name:"Gender and Mental Health", credits:15, level:300},
+      {code:"PL3015", name:"Mental Health Around the World", credits:15, level:300},
+      {code:"PL3020", name:"Occupational Psychology", credits:15, level:300},
+      {code:"PL3025", name:"Forensic Psychology", credits:15, level:300},
+      {code:"PL3030", name:"Research Project 1: Foundation", credits:15, level:300},
+      {code:"PL3035", name:"Research Project 2: Consolidation", credits:30, level:300},
+    ]
+  }
+};
+
+let selectedDegree = null;
+let selectedRoute  = null;
+let currentCourses = [];
+let firstYearCollapsed = false;
+
+function updateCalcButton(entered) {
+  const btn = document.getElementById('calc-btn');
+  let hasBlank;
+  if (entered) {
+    hasBlank = entered.some(m => m === null);
+  } else if (!isPsychology() && firstYearCollapsed) {
+    const gv = document.getElementById('mark-fy-grouped');
+    const fyBlank = !gv || gv.value === '';
+    const higherBlank = currentCourses.some((_,i) => {
+      if (currentCourses[i].level === 100) return false;
+      const v = document.getElementById(`mark-${i}`);
+      return !v || v.value === '';
+    });
+    hasBlank = fyBlank || higherBlank;
+  } else {
+    hasBlank = currentCourses.some((_,i) => {
+      const v = document.getElementById(`mark-${i}`);
+      return !v || v.value === '';
+    });
+  }
+  btn.textContent = hasBlank
+    ? 'Calculate my classification so far →'
+    : 'Calculate my classification →';
+}
+
+function init() {
+  const grid = document.getElementById('degree-grid');
+  Object.keys(DEGREES).forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'degree-btn';
+    btn.innerHTML = `<span class="deg-prefix">BSc</span>${name}`;
+    btn.onclick = () => selectDegree(name, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function selectDegree(name, btn) {
+  document.querySelectorAll('.degree-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedDegree = name;
+  selectedRoute = null;
+  firstYearCollapsed = false;
+
+  document.getElementById('route-step').classList.add('hidden');
+  document.getElementById('grades-step-num').textContent = '2';
+  document.getElementById('result-panel').style.display = 'none';
+
+  selectRoute('standard');
+}
+
+function selectRoute(route) {
+  selectedRoute  = route;
+  currentCourses = DEGREES[selectedDegree][route];
+  buildCourseTable();
+  document.getElementById('grades-step').classList.remove('hidden');
+  document.getElementById('result-panel').style.display = 'none';
+  updateCalcButton(null);
+}
+
+function isPsychology() {
+  return selectedDegree === 'Psychology';
+}
+
+function buildCourseTable() {
+  const tbody = document.getElementById('course-rows');
+  tbody.innerHTML = '';
+  firstYearCollapsed = false;
+
+  if (isPsychology()) {
+    document.getElementById('hint-text').innerHTML =
+      'Your final grade is a <strong>credit-weighted average</strong> of all 360 credits. Leave blank for modules not yet sat.';
+    document.getElementById('fy-bracket').style.display = 'none';
+  } else {
+    document.getElementById('hint-text').innerHTML =
+      '<strong>100-level courses:</strong> Their weighted average generates only <span class="num-badge nb-upper">2</span> classification marks. All Year 1 courses together only contribute to <b>1/9th</b> of your final grade.<br><br><strong>200/300-level courses:</strong> Each full module generates <span class="num-badge nb-upper">2</span> classification marks for a total of <span class="num-badge nb-upper">18</span>'
+    document.getElementById('fy-bracket').style.display = 'flex';
+    document.getElementById('fy-toggle-btn').textContent = '−';
+    document.getElementById('fy-toggle-btn').title = 'Group first-year courses into a single average';
+  }
+
+  // Grouped first-year row — inserted first, hidden by default
+  if (!isPsychology()) {
+    const tr = document.createElement('tr');
+    tr.id = 'fy-grouped-row';
+    tr.style.display = 'none';
+    tr.innerHTML = `
+      <td><span class="lvl-badge lvl-100">100</span></td>
+      <td class="course-name-cell"><strong>First Year Average</strong><span class="course-credit">120 credits</span></td>
+      <td style="text-align:right">
+        <input type="number" class="mark-input" id="mark-fy-grouped" min="0" max="100" placeholder="—" oninput="onMarkGrouped(this)">
+      </td>
+      <td style="text-align:right">
+        <span class="grade-tag g-blank-tag" id="pill-fy-grouped">—</span>
+      </td>`;
+    tbody.appendChild(tr);
+  }
+
+  // Individual rows
+  currentCourses.forEach((c, i) => {
+    const tr = document.createElement('tr');
+    tr.dataset.level = c.level;
+    const lvlMap = {100:'lvl-100', 200:'lvl-200', 300:'lvl-300'};
+    tr.innerHTML = `
+      <td><span class="lvl-badge ${lvlMap[c.level]}">${c.level}</span></td>
+      <td class="course-name-cell">${c.name}<span class="course-credit">${c.credits} credits</span></td>
+      <td style="text-align:right">
+        <input type="number" class="mark-input" id="mark-${i}" min="0" max="100" placeholder="—" oninput="onMark(${i},this)">
+      </td>
+      <td style="text-align:right">
+        <span class="grade-tag g-blank-tag" id="pill-${i}">—</span>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Position bracket after DOM settles
+  requestAnimationFrame(() => positionFyBracket());
+}
+
+function positionFyBracket() {
+  if (isPsychology()) return;
+  const bracket = document.getElementById('fy-bracket');
+  const bracketInner = document.getElementById('fy-bracket-inner');
+  const tbody = document.getElementById('course-rows');
+  if (!bracket || !bracketInner || !tbody) return;
+
+  // Visible target rows: grouped row if collapsed, else individual 100-level rows
+  const groupedRow = document.getElementById('fy-grouped-row');
+  const targetRows = firstYearCollapsed && groupedRow
+    ? [groupedRow]
+    : [...document.querySelectorAll('#course-rows tr[data-level="100"]')].filter(r => r.style.display !== 'none');
+  if (!targetRows.length) return;
+
+  // Measure positions relative to the bracket container's top
+  const bracketTop = bracket.getBoundingClientRect().top;
+  const firstTop = targetRows[0].getBoundingClientRect().top - bracketTop;
+  const lastBottom = targetRows[targetRows.length - 1].getBoundingClientRect().bottom - bracketTop;
+  const span = lastBottom - firstTop;          // total height of the 100-level block
+  const btnH = 20;
+  const lineH = Math.max(0, (span - btnH) / 2);
+
+  // Set bracket container to cover the full table height (thead + tbody)
+  const tableEl = document.querySelector('.fy-bracket-table table');
+  bracket.style.height = (tableEl ? tableEl.getBoundingClientRect().height : tbody.getBoundingClientRect().height) + 'px';
+
+  // Position the inner strip starting at the first 100-level row
+  bracketInner.style.top = firstTop + 'px';
+  bracketInner.style.height = span + 'px';
+  document.getElementById('fy-line-top').style.height = lineH + 'px';
+  document.getElementById('fy-line-bottom').style.height = lineH + 'px';
+}
+
+function toggleFirstYear() {
+  firstYearCollapsed = !firstYearCollapsed;
+  const btn = document.getElementById('fy-toggle-btn');
+  const groupedRow = document.getElementById('fy-grouped-row');
+
+  if (firstYearCollapsed) {
+    btn.textContent = '+';
+    btn.title = 'Expand first-year courses';
+    // Hide individual 100-level rows
+    document.querySelectorAll('#course-rows tr[data-level="100"]').forEach(tr => tr.style.display = 'none');
+    groupedRow.style.display = '';
+  } else {
+    btn.textContent = '−';
+    btn.title = 'Group first-year courses into a single average';
+    // Show individual 100-level rows
+    document.querySelectorAll('#course-rows tr[data-level="100"]').forEach(tr => tr.style.display = '');
+    groupedRow.style.display = 'none';
+    // Clear grouped input
+    const gInput = document.getElementById('mark-fy-grouped');
+    if (gInput) { gInput.value = ''; gInput.className = 'mark-input'; }
+    document.getElementById('pill-fy-grouped').className = 'grade-tag g-blank-tag';
+    document.getElementById('pill-fy-grouped').textContent = '—';
+  }
+  updateCalcButton(null);
+  requestAnimationFrame(() => positionFyBracket());
+}
+
+function onMarkGrouped(el) {
+  const pill = document.getElementById('pill-fy-grouped');
+  el.className = 'mark-input';
+  if (el.value === '' || isNaN(parseFloat(el.value))) {
+    pill.className = 'grade-tag g-blank-tag'; pill.textContent = '—';
+    updateCalcButton(null);
+    return;
+  }
+  const v = Math.max(0, Math.min(100, parseFloat(el.value)));
+  const {cls, short} = gradeInfo(v);
+  el.classList.add(`g-${cls}`);
+  pill.className = `grade-tag g-${cls}-tag`;
+  pill.textContent = short;
+  updateCalcButton(null);
+}
+
+function gradeInfo(m) {
+  if (m >= 70) return {cls:'first', short:'1st'};
+  if (m >= 60) return {cls:'upper', short:'2:1'};
+  if (m >= 50) return {cls:'lower', short:'2:2'};
+  if (m >= 40) return {cls:'third', short:'3rd'};
+  return {cls:'fail', short:'Fail'};
+}
+
+function onMark(i, el) {
+  const pill = document.getElementById(`pill-${i}`);
+  el.className = 'mark-input';
+  if (el.value === '' || isNaN(parseFloat(el.value))) {
+    pill.className = 'grade-tag g-blank-tag'; pill.textContent = '—';
+    updateCalcButton(null);
+    return;
+  }
+  const v = Math.max(0, Math.min(100, parseFloat(el.value)));
+  const {cls, short} = gradeInfo(v);
+  el.classList.add(`g-${cls}`);
+  pill.className = `grade-tag g-${cls}-tag`;
+  pill.textContent = short;
+  updateCalcButton(null);
+}
+
+function buildMarks(entered, courses, estAvg) {
+  const l100 = [], higher = [];
+  courses.forEach((c, i) => {
+    let m = entered[i];
+    const est = m === null;
+    if (m === null) { if (estAvg === null) return; m = estAvg; }
+    if (c.point <= 4) {
+      l100.push({mark:m, credits:c.credits, est});
+    } else {
+      const reps = c.credits === 15 ? 1 : 2;
+      for (let r=0;r<reps;r++) higher.push({mark:m, est});
+    }
+  });
+  let low = [];
+  if (l100.length) {
+    const tc = l100.reduce((s,x)=>s+x.credits,0);
+    const ws = l100.reduce((s,x)=>s+x.mark*x.credits,0);
+    const av = ws/tc, anyEst = l100.some(x=>x.est);
+    low = tc >= 30 ? [{mark:av,est:anyEst},{mark:av,est:anyEst}] : [{mark:av,est:anyEst}];
+  }
+  return [...low, ...higher];
+}
+
+// ── GRADUATION ELIGIBILITY ──────────────────────────────────────────────────
+
+function getFailedCredits(entered) {
+  return currentCourses.reduce((s,c,i) => entered[i] !== null && entered[i] < 40 ? s + c.credits : s, 0);
+}
+
+function checkUolEligibility(entered) {
+  const attempted    = currentCourses.reduce((s,c,i)=>entered[i]!==null?s+c.credits:s,0);
+  const passed       = currentCourses.reduce((s,c,i)=>entered[i]!==null&&entered[i]>=40?s+c.credits:s,0);
+  const failedCredits = getFailedCredits(entered);
+  const allEntered   = !entered.some(m=>m===null);
+
+  const a360 = allEntered && attempted >= 360;
+  const a330 = passed >= 330;
+  const a300 = passed >= 300;
+
+  // Pass-degree path: triggered when failed credits > 30
+  const inPassPath = failedCredits > 30;
+
+  let status, title, lines;
+
+  if (allEntered) {
+    if (!inPassPath && a360 && a330) {
+      status = 'eligible';
+      title  = '✅ Eligible for an Honours degree';
+      lines  = [
+        {ok:true, txt:`360 credits attempted (${attempted})`},
+        {ok:true, txt:`At least 330 credits passed (${passed})`},
+      ];
+    } else if (a360 && a300 && (inPassPath || !a330)) {
+      if (inPassPath && !a330) {
+        status = 'unclassified';
+        title  = '⚠️ May qualify for a Pass degree (unclassified)';
+        lines  = [
+          {ok:true,  txt:`360 credits attempted (${attempted})`},
+          {ok:true,  txt:`At least 300 credits passed (${passed}): "Pass" degree threshold met`},
+          {ok:false, txt:`Honours requires 330 passed credits; you have ${passed} (need ${330-passed} more)`},
+        ];
+      } else {
+        status = 'unclassified';
+        title  = '⚠️ May qualify for an Unclassified Pass degree';
+        lines  = [
+          {ok:true,  txt:`360 credits attempted (${attempted})`},
+          {ok:false, txt:`Fewer than 330 credits passed (${passed} passed, need ${330-passed} more for honours)`},
+          {ok:true,  txt:`At least 300 credits passed: unclassified pass threshold met`},
+        ];
+      }
+    } else if (!a300) {
+      status = 'not-eligible';
+      title  = '❌ Not yet eligible for award';
+      lines  = [
+        {ok:a360, txt:a360 ? `360 credits attempted (${attempted})` : `Only ${attempted} of 360 credits attempted`},
+        {ok:inPassPath ? a300 : a330, txt:inPassPath
+          ? (a300 ? `At least 300 credits passed (${passed})` : `Only ${passed} of 300 credits passed (resits required)`)
+          : (a330 ? `At least 330 credits passed (${passed})` : `Only ${passed} of 330 required credits passed`)},
+        ...(inPassPath ? [{ok:false, txt:`${failedCredits} failed credits (Honours requires 30 or fewer failed credits)`}] : []),
+      ];
+    } else {
+      status = 'not-eligible';
+      title  = '❌ Not yet eligible for award';
+      lines  = [
+        {ok:a360, txt:a360 ? `360 credits attempted (${attempted})` : `Only ${attempted} of 360 credits attempted`},
+        {ok:a330, txt:a330 ? `At least 330 credits passed (${passed})` : `Only ${passed} of 330 required credits passed`},
+      ];
+    }
+  } else {
+    if (inPassPath) {
+      status = 'unclassified';
+      title  = 'ℹ️ Pass-degree path: grades incomplete';
+      lines  = [
+        {ok:null,  txt:`${attempted} of 360 credits entered so far`},
+        {ok:false, txt:`${failedCredits} credits failed so far (exceeds 30-credit threshold for Honours)`},
+        {ok:a300||null, txt:`${passed} credits passed (need 300 for a Pass degree, 330 for Honours)`},
+      ];
+    } else {
+      status = 'unclassified';
+      title  = 'ℹ️ Grades incomplete: partial eligibility check';
+      lines  = [
+        {ok:null,       txt:`${attempted} of 360 credits entered so far`},
+        {ok:a330||null, txt:`${passed} credits passed so far (${330-Math.min(passed,330)} more needed for honours)`},
+      ];
+    }
+  }
+  return {status, title, lines, inPassPath, failedCredits, passed};
+}
+
+function checkPsychologyEligibility(entered) {
+  const attempted     = currentCourses.reduce((s,c,i)=>entered[i]!==null?s+c.credits:s,0);
+  const passed        = currentCourses.reduce((s,c,i)=>entered[i]!==null&&entered[i]>=40?s+c.credits:s,0);
+  const failedModules = currentCourses.filter((c,i)=>entered[i]!==null&&entered[i]<40);
+  const allEntered    = !entered.some(m=>m===null);
+
+  let status, title, lines;
+
+  if (allEntered) {
+    if (attempted >= 360 && failedModules.length === 0) {
+      status = 'eligible';
+      title  = '✅ Eligible for an Honours degree';
+      lines  = [
+        {ok:true, txt:`360 credits attempted (${attempted})`},
+        {ok:true, txt:`All modules passed (subject to marginal compensation rules, Reg. 6.1)`},
+      ];
+    } else {
+      status = failedModules.length ? 'not-eligible' : 'unclassified';
+      title  = '❌ Not yet eligible for award';
+      lines  = [
+        {ok:attempted>=360, txt:attempted>=360 ? `360 credits attempted` : `${attempted} of 360 credits attempted`},
+        {ok:failedModules.length===0, txt:failedModules.length===0 ? `All modules passed` : `Failed module(s): ${failedModules.map(c=>c.name).join(', ')} (max 3 attempts permitted, Reg. 6.1)`},
+        ...(failedModules.length ? [{ok:null, txt:`⚠️ May be eligible for a Diploma of Higher Education in Psychology — see Reg. 8.6`}] : []),
+      ];
+    }
+  } else {
+    status = 'unclassified';
+    title  = `ℹ️ Grades incomplete: partial eligibility check`;
+    lines  = [
+      {ok:null,                     txt:`${attempted} of 360 credits entered so far`},
+      {ok:failedModules.length===0, txt:failedModules.length===0 ? `No failed modules so far` : `Failed module(s): ${failedModules.map(c=>c.name).join(', ')} (max 3 attempts permitted, Reg. 6.1)`},
+    ];
+  }
+  return {status, title, lines};
+}
+
+function renderEligibility(info) {
+  const box = document.getElementById('grad-status-box');
+  const iconMap = {true:'✅', false:'❌', null:'⬜'};
+  box.innerHTML = `
+    <div class="grad-status ${info.status}">
+      <div class="gs-title">${info.title}</div>
+      <ul class="grad-conditions">
+        ${info.lines.map(l=>`<li><span class="ck">${iconMap[l.ok]}</span><span>${l.txt}</span></li>`).join('')}
+      </ul>
+    </div>`;
+}
+
+function classify(marks) {
+  const avg = marks.reduce((s,x)=>s+x.mark,0)/marks.length;
+  const fc = marks.filter(x=>x.mark>=70).length;
+  const uc = marks.filter(x=>x.mark>=60).length;
+  const lc = marks.filter(x=>x.mark>=50).length;
+  const pc = marks.filter(x=>x.mark>=40).length;
+  let cls;
+  if (fc>=10||(fc>=8&&avg>=65))      cls='First Class Honours';
+  else if(uc>=10||(uc>=8&&avg>=56))  cls='Upper Second Class Honours (2:1)';
+  else if(lc>=10||(lc>=8&&avg>=47))  cls='Lower Second Class Honours (2:2)';
+  else if(pc>0)                       cls='Third Class Honours';
+  else                                cls='Fail';
+  return {cls,avg,fc,uc,lc,pc};
+}
+
+function classifyPsychology(weightedAvg) {
+  if (weightedAvg >= 70)      return 'First Class Honours';
+  if (weightedAvg >= 60)      return 'Upper Second Class Honours (2:1)';
+  if (weightedAvg >= 50)      return 'Lower Second Class Honours (2:2)';
+  if (weightedAvg >= 40)      return 'Third Class Honours';
+  return 'Fail';
+}
+
+// ── SCENARIO GENERATION ──────────────────────────────────────────────────────
+
+// Convert a classification mark count to modules (30cr = 2 marks, 15cr = 1 mark)
+// Since all higher-level courses used here are 30 credits, marks are always even multiples
+function marksToModules(n) { return n / 2; }
+function numBadge(n, cls) { return `<span class="num-badge nb-${cls}">${n}</span>`; }
+function moduleLabel(n, cls) { const m = marksToModules(n); return `${numBadge(m, cls)} module${m !== 1 ? 's' : ''}`; }
+function pctBadge(x, cls) { return `<span class="num-badge nb-${cls}">${x}%</span>`; }
+function remainingLabel(n) {
+  const passMin = Math.max(0, n - 1);
+  const tip = passMin === 0 ? `you just need to attempt all ${n}` : `you must pass at least ${passMin} of them`;
+  return `remaining ${n} module${n !== 1 ? 's' : ''}`;
+}
+
+// Returns how many remaining blank modules (30-credit) a student needs to pass (≥40)
+// so that total passed credits reaches the target (e.g. 330 for honours).
+function computePassModulesNeeded(entered, courses, targetPassed) {
+  const passedCredits = courses.reduce((s,c,i) => entered[i] !== null && entered[i] >= 40 ? s + c.credits : s, 0);
+  const creditsNeeded = Math.max(0, targetPassed - passedCredits);
+  // Each blank module is 30 credits (all higher-level courses in EMFSS are 30 credits)
+  return Math.ceil(creditsNeeded / 30);
+}
+
+// For EMFSS (non-psychology) degrees: work out what the student needs in
+// their remaining blank classification marks to reach each classification.
+// Returns an array of scenario objects: {cls, scClass, likelihood, paths}
+function buildEmfssScenarios(marks, entered, courses) {
+  // Compute real entered marks directly from the entered array (not from marks,
+  // which may contaminate real L100 marks when any L100 course is blank)
+  const realMarks = buildMarks(entered, courses, null); // null estAvg = skip blanks
+
+  // Count blank classification marks: blank higher-level courses + blank L100 group
+  let blankMarks = 0;
+  const l100Entered = courses.filter((c,i) => c.point <= 4 && entered[i] !== null);
+  const l100Blank   = courses.filter((c,i) => c.point <= 4 && entered[i] === null);
+  const l100EnteredCredits = l100Entered.reduce((s,c) => s+c.credits, 0);
+  // If ALL L100 courses are blank, they contribute 2 blank marks (or 1 if <30 credits)
+  // If SOME L100 are blank but at least one real, the group mark is real (partial est is absorbed)
+  // Only count L100 as blank marks if no real L100 marks exist at all
+  if (l100Entered.length === 0 && l100Blank.length > 0) {
+    const totalL100Credits = l100Blank.reduce((s,c) => s+c.credits, 0);
+    blankMarks += totalL100Credits >= 30 ? 2 : 1;
+  }
+  // Blank higher-level courses each contribute 1 (15cr) or 2 (30cr) marks
+  courses.forEach((c,i) => {
+    if (c.point > 4 && entered[i] === null) {
+      blankMarks += c.credits === 15 ? 1 : 2;
+    }
+  });
+
+  const enteredMarks = realMarks;
+  const enteredSum = enteredMarks.reduce((s,x) => s+x.mark, 0);
+
+  const fcNow  = enteredMarks.filter(x=>x.mark>=70).length;
+  const ucNow  = enteredMarks.filter(x=>x.mark>=60).length;
+  const lcNow  = enteredMarks.filter(x=>x.mark>=50).length;
+  const pcNow  = enteredMarks.filter(x=>x.mark>=40).length;
+
+  const scenarios = [];
+
+  // Helper: given a target classification, work out what the student needs.
+  // For 1st/2:1/2:2 there are two official paths:
+  //   Path A (count): reach 10 qualifying marks
+  //   Path B (8+avg): reach 8 qualifying marks AND overall average ≥ threshold
+  // We evaluate which paths are already met, still achievable, or impossible,
+  // and show only the relevant guidance.
+  function describeTarget(targetCls) {
+    const paths = [];
+    let impossible = false;
+
+    const totalM   = enteredMarks.length + blankMarks;
+    const blankMod = marksToModules(blankMarks);
+
+    function onTrackMsg() {
+      const passNeeded = computePassModulesNeeded(entered, courses, 330);
+      if (passNeeded <= 0) return `Already secured!`;
+      return `Already Secured. Just pass ${passNeeded} out of ${blankMod} remaining module${blankMod !== 1 ? 's' : ''}`;
+    }
+
+    function handleClassification(C, qualNow, threshold) {
+      const countNeeded = Math.max(0, 10 - qualNow);
+      const extraFor8   = Math.max(0, 8 - qualNow);
+      const modLabel = (n) => moduleLabel(n, C).replace(/\bmodule/, (qualNow > 0 ? 'more ' : '') + 'module');
+
+      // Check if either path is already satisfied
+      const pathADone = qualNow >= 10;
+      const avgNow    = totalM > 0 ? enteredSum / enteredMarks.length : 0;
+      const pathBDone = qualNow >= 8 && (enteredMarks.length > 0 && enteredSum / enteredMarks.length >= threshold) && blankMarks === 0;
+
+      if (pathADone || pathBDone) {
+        paths.push(onTrackMsg());
+        return;
+      }
+
+      // Path A: can we reach 10?
+      const pathAReachable = qualNow + blankMarks >= 10;
+      // Path B: can we reach 8 and hit average threshold?
+      const pathBReachable = qualNow + blankMarks >= 8;
+      const avgNeededB = blankMarks > 0 ? (threshold * totalM - enteredSum) / blankMarks : Infinity;
+      const pathBFeasible = pathBReachable && avgNeededB <= 100;
+
+      if (!pathAReachable && !pathBFeasible) {
+        impossible = true;
+        return;
+      }
+
+      // Build path messages — show avg path first (easier bar), then count path as alternative
+      if (pathBFeasible && pathAReachable) {
+        // Both paths open
+        if (avgNeededB <= 0 && extraFor8 === 0) {
+          // Path B already met on average side but blanks remain — treat as secured
+          paths.push(onTrackMsg());
+        } else if (extraFor8 === 0) {
+          // Already have ≥8 qualifying marks, just need the average
+          paths.push(`Average at least ${pctBadge(Math.ceil(avgNeededB), C)} across ${remainingLabel(blankMod)}`);
+          paths.push(`Or: get ${C === 'first' ? 'First-Class' : C === 'upper' ? 'Upper-Second' : 'Lower-Second'} marks in ${modLabel(countNeeded)}`);
+        } else if (countNeeded === 0) {
+          // Already have 10 qualifying marks somehow — secured
+          paths.push(onTrackMsg());
+        } else {
+          // Need both extra qualifying marks AND a certain average (path B), OR just more marks (path A)
+          const label = C === 'first' ? 'First-Class' : C === 'upper' ? 'Upper-Second' : 'Lower-Second';
+          if (avgNeededB <= 0) {
+            paths.push(`Get ${label} marks in ${modLabel(extraFor8)}`);
+          } else {
+            paths.push(`Get ${label} marks in ${modLabel(extraFor8)} and average at least ${pctBadge(Math.ceil(avgNeededB), C)} across ${remainingLabel(blankMod)}`);
+          }
+          if (countNeeded !== extraFor8) {
+            paths.push(`Or: get ${label} marks in ${modLabel(countNeeded)}`);
+          }
+        }
+      } else if (pathBFeasible) {
+        // Only path B is open
+        const label = C === 'first' ? 'First-Class' : C === 'upper' ? 'Upper-Second' : 'Lower-Second';
+        if (extraFor8 === 0) {
+          paths.push(`Average at least ${pctBadge(Math.ceil(Math.max(avgNeededB, 0)), C)} across ${remainingLabel(blankMod)}`);
+        } else if (avgNeededB <= 0) {
+          paths.push(`Get ${label} marks in ${modLabel(extraFor8)}`);
+        } else {
+          paths.push(`Get ${label} marks in ${modLabel(extraFor8)} and average at least ${pctBadge(Math.ceil(Math.max(avgNeededB, 0)), C)} across ${remainingLabel(blankMod)}`);
+        }
+      } else {
+        // Only path A is open
+        const label = C === 'first' ? 'First-Class' : C === 'upper' ? 'Upper-Second' : 'Lower-Second';
+        paths.push(`Get ${label} marks in ${modLabel(countNeeded)}`);
+      }
+    }
+
+    if (targetCls === 'First Class Honours') {
+      handleClassification('first', fcNow, 65);
+    } else if (targetCls === 'Upper Second Class Honours (2:1)') {
+      handleClassification('upper', ucNow, 56);
+    } else if (targetCls === 'Lower Second Class Honours (2:2)') {
+      handleClassification('lower', lcNow, 47);
+    } else if (targetCls === 'Third Class Honours') {
+      // Third class: purely a credits question (330 passed, 360 attempted)
+      const passNeeded = computePassModulesNeeded(entered, courses, 330);
+      const blankMods  = marksToModules(blankMarks);
+      if (passNeeded <= 0) {
+        paths.push(`Already secured!`);
+      } else if (blankMarks > 0 || pcNow > 0) {
+        paths.push(`Awarded to all students who pass at least 330 of 360 attempted credits`);
+      } else {
+        impossible = true;
+      }
+    }
+
+    return { impossible, paths };
+  }
+
+  const classifications = [
+    { cls: 'First Class Honours',              scClass: 'sc-first',  badge: '1st Class' },
+    { cls: 'Upper Second Class Honours (2:1)', scClass: 'sc-upper',  badge: '2:1 Upper Second' },
+    { cls: 'Lower Second Class Honours (2:2)', scClass: 'sc-lower',  badge: '2:2 Lower Second' },
+    { cls: 'Third Class Honours',              scClass: 'sc-third',  badge: '3rd Class' },
+  ];
+
+  let higherSecured = null; // name of the highest classification already secured
+  for (const sc of classifications) {
+    const { impossible, paths } = describeTarget(sc.cls);
+    if (higherSecured) {
+      // A higher classification is already secured — this one cannot be awarded
+      scenarios.push({ ...sc, impossible: true, paths: [], supersededBy: higherSecured });
+    } else {
+      scenarios.push({ ...sc, impossible, paths });
+      // A classification is "secured" when its path starts with "On track" or "Already secured"
+      const isSecured = !impossible && paths.length > 0 &&
+        (paths[0].startsWith('Already Secured.') || paths[0].startsWith('Already secured!'));
+      if (isSecured) higherSecured = sc.badge;
+    }
+  }
+
+  return scenarios;
+}
+
+
+// ── PASS DEGREE SCENARIOS (EMFSS, failed credits > 30) ──────────────────────
+function buildPassDegreeScenarios(entered) {
+  const failedCredits = getFailedCredits(entered);
+  const scenarios = [];
+
+  // ── Honours path ──────────────────────────────────────────────────────────
+  scenarios.push({
+    cls: 'Honours degree (1st, 2:1, 2:2 or 3rd)',
+    scClass: 'sc-third',
+    badge: 'Honours Classifications',
+    impossible: false,
+    paths: [
+      'At least 330 credits must be passed to be considered for an Honours degree.',
+      'You must resit some failed courses to achieve any classification other than a pass.',
+      'You can attempt each course up to 3 times.',
+    ],
+  });
+
+  // ── Pass degree path ──────────────────────────────────────────────────────
+  if (failedCredits <= 60) {
+    scenarios.push({
+      cls: 'Pass degree (unclassified)',
+      scClass: 'sc-pass',
+      badge: '"Pass" Degree',
+      impossible: false,
+      paths: [
+        'As it stands, may still qualify for a "Pass" BSc. without resits (min 300 credits passed)',
+        'You must have attempted all 360 credits'
+      ],
+    });
+  } else {
+    scenarios.push({
+      cls: 'Pass degree (unclassified)',
+      scClass: 'sc-pass',
+      badge: 'Pass Degree',
+      impossible: false,
+      paths: [
+        'At least 300 credits must be passed to be considered for a degree.',
+        'You must resit some failed courses to graduate.',
+        'You can attempt each course up to 3 times.',
+      ],
+    });
+  }
+
+  return scenarios;
+}
+
+// Psychology scenarios: based on credit-weighted average needed
+function buildPsychologyScenarios(entered) {
+  const totalCredits = currentCourses.reduce((s,c) => s+c.credits, 0); // 360
+
+  const failedModules = currentCourses.filter((c,i) => entered[i] !== null && entered[i] < 40);
+  const hasFailures = failedModules.length > 0;
+
+  // For average projection, treat failed modules as blank (must be re-sat)
+  const vals = currentCourses.map((c,i) => {
+    if (entered[i] === null || entered[i] < 40) return null;
+    return {credits: c.credits, mark: entered[i]};
+  }).filter(Boolean);
+
+  const enteredCredits = vals.reduce((s,p) => s+p.credits, 0);
+  const enteredWS = vals.reduce((s,p) => s+p.mark*p.credits, 0);
+  const remainingCredits = totalCredits - enteredCredits;
+
+  const scenarios = [];
+
+  // If there are failed modules, show only the resit card
+  if (hasFailures) {
+    const names = failedModules.map(c => c.name).join(', ');
+    scenarios.push({
+      cls: 'Resit required',
+      scClass: 'sc-resit',
+      badge: 'Resit Required',
+      impossible: false,
+      paths: [
+        `All modules must be passed to graduate. Failed: ${names}.`,
+        `You may attempt each module up to 3 times (Reg. 6.1).`,
+      ],
+      noInfo: true,
+    });
+    return scenarios;
+  }
+
+  const thresholds = [
+    { cls: 'First Class Honours',              scClass: 'sc-first', badge: '1st Class',        t: 70 },
+    { cls: 'Upper Second Class Honours (2:1)', scClass: 'sc-upper', badge: '2:1 Upper Second',  t: 60 },
+    { cls: 'Lower Second Class Honours (2:2)', scClass: 'sc-lower', badge: '2:2 Lower Second',  t: 50 },
+    { cls: 'Third Class Honours',              scClass: 'sc-third', badge: '3rd Class',         t: 40 },
+  ];
+
+  let higherSecured = null;
+  thresholds.forEach(sc => {
+    if (higherSecured) {
+      scenarios.push({ cls: sc.cls, scClass: sc.scClass, badge: sc.badge, impossible: true, paths: [], supersededBy: higherSecured });
+      return;
+    }
+    const neededTotal = sc.t * totalCredits;
+    const neededRemaining = neededTotal - enteredWS;
+    const avgNeeded = remainingCredits > 0 ? neededRemaining / remainingCredits : Infinity;
+    const impossible = avgNeeded > 100;
+    const alreadyThere = avgNeeded <= 40;
+    let paths = [];
+    if (sc.t === 40) {
+      paths = [`All students who pass all their modules receive at least a 3rd Class Honours degree.`];
+    } else if (alreadyThere) {
+      paths = remainingCredits > 0
+        ? [`Already secured. Just pass your remaining modules.`]
+        : [`Already secured!`];
+      higherSecured = sc.badge;
+    } else if (!impossible) {
+      paths = [`Average at least ${Math.ceil(avgNeeded)}% across your remaining ${remainingCredits} credits`];
+    }
+    scenarios.push({ cls: sc.cls, scClass: sc.scClass, badge: sc.badge, impossible, paths, noInfo: true });
+  });
+
+  return scenarios;
+}
+
+function renderScenarios(scenarios) {
+  const section = document.getElementById('scenarios-section');
+  const list = document.getElementById('scenarios-list');
+  list.innerHTML = '';
+
+  const visible = scenarios.filter(sc => !sc.impossible || sc.paths.length > 0 || sc.supersededBy);
+  if (!visible.length) { section.classList.add('hidden'); return; }
+
+  section.classList.remove('hidden');
+  for (const sc of scenarios) {
+    const card = document.createElement('div');
+    card.className = `scenario-card ${sc.impossible ? 'sc-impossible' : sc.scClass}`;
+    let pathsHtml;
+    if (sc.supersededBy) {
+      pathsHtml = `<ul class="scenario-paths"><li><span class="path-bullet">✗</span><span>Not applicable: already secured ${sc.supersededBy}</span></li></ul>`;
+    } else if (sc.paths.length) {
+      // paths may contain HTML (e.g. <strong>) — render directly
+      pathsHtml = `<ul class="scenario-paths">${sc.paths.map(p=>`<li><span class="path-bullet">→</span><span>${p}</span></li>`).join('')}</ul>`;
+    } else {
+      pathsHtml = `<ul class="scenario-paths"><li><span class="path-bullet">✗</span><span>Not achievable with remaining modules</span></li></ul>`;
+    }
+    const infoBadge = (!sc.impossible && !sc.supersededBy && !sc.noInfo && sc.scClass && sc.scClass !== 'sc-pass' && sc.scClass !== 'sc-third')
+      ? `<span class="card-info" data-tip="You must also pass at least 330 credits and have attempted all 360 credits to achieve this classification.">!</span>`
+      : '';
+    card.innerHTML = `
+      <div class="scenario-header">
+        <span class="scenario-badge">${sc.badge}</span>
+      </div>
+      ${pathsHtml}
+      ${infoBadge}`;
+    list.appendChild(card);
+  }
+}
+
+function calculate() {
+  document.querySelector('.marks-section-label').style.display = '';
+  let entered = currentCourses.map((_,i)=>{
+    const v = document.getElementById(`mark-${i}`).value;
+    return v===''?null:Math.max(0,Math.min(100,parseFloat(v)));
+  });
+
+  // If first year is collapsed, propagate grouped mark to all 100-level slots
+  if (!isPsychology() && firstYearCollapsed) {
+    const gv = document.getElementById('mark-fy-grouped').value;
+    const gMark = gv === '' ? null : Math.max(0, Math.min(100, parseFloat(gv)));
+    entered = entered.map((m, i) => currentCourses[i].level === 100 ? gMark : m);
+  }
+
+  const vals = entered.filter(m=>m!==null);
+  if (!vals.length) { alert('Please enter at least one mark.'); return; }
+
+  const hasBlank = entered.some(m=>m===null);
+
+  if (isPsychology()) {
+    calculatePsychology(entered, hasBlank);
+    return;
+  }
+
+  // EMFSS: all first-year (level-100) grades must be known before computing
+  const missingFirstYear = currentCourses.some((c, i) => c.level === 100 && entered[i] === null);
+  if (missingFirstYear) {
+    alert('Please enter all first-year (100-level) grades before computing your classification. First-year results are required for the EMFSS grading formula.');
+    return;
+  }
+
+  // Current-only mode: only use entered marks
+  const marks = buildMarks(entered, currentCourses, null);
+  if (!marks.length) { alert('Please enter at least one mark.'); return; }
+
+  const numReal = marks.filter(x=>!x.est).length;
+  let {cls, avg, fc, uc} = classify(marks);
+
+  const bannerCls = {
+    'First Class Honours':'banner-first',
+    'Upper Second Class Honours (2:1)':'banner-upper',
+    'Lower Second Class Honours (2:2)':'banner-lower',
+    'Third Class Honours':'banner-third',
+    'Pass (Unclassified)':'banner-third',
+    'No Award':'banner-fail',
+    'Fail':'banner-fail'
+  };
+
+  const panel = document.getElementById('result-panel');
+  let eyebrow, titlePrefix;
+  if (!hasBlank) {
+    eyebrow = 'Your classification';
+    titlePrefix = '';
+  } else {
+    // Projected classification: based on whether current average is above/below
+    // the required remaining average for each threshold
+    const realMarksOnly = buildMarks(entered, currentCourses, null);
+    const enteredSum = realMarksOnly.reduce((s,x)=>s+x.mark,0);
+    const enteredCount = realMarksOnly.length;
+    const totalMarks = 18; // full EMFSS classification marks
+    const remainingMarks = Math.max(0, totalMarks - enteredCount);
+    const currentAvg = enteredCount > 0 ? enteredSum / enteredCount : 0;
+
+    const thresholds = [
+      {t:65, qualMin:8, markThreshold:70, label:'First Class Honours'},
+      {t:56, qualMin:8, markThreshold:60, label:'Upper Second Class Honours (2:1)'},
+      {t:47, qualMin:8, markThreshold:50, label:'Lower Second Class Honours (2:2)'},
+    ];
+
+    const fcNow = realMarksOnly.filter(x=>x.mark>=70).length;
+    const ucNow = realMarksOnly.filter(x=>x.mark>=60).length;
+    const lcNow = realMarksOnly.filter(x=>x.mark>=50).length;
+    const qualCounts = {70: fcNow, 60: ucNow, 50: lcNow};
+
+    let projectedCls = currentAvg < 40 ? 'No Award' : 'Third Class Honours';
+    for (const th of thresholds) {
+      const qualNow = qualCounts[th.markThreshold];
+      const qualStillNeeded = Math.max(0, th.qualMin - qualNow);
+      // Path B: must already have ≥8 qualifying marks (or can get them with ≤50% of remaining)
+      const qualPathValid = qualStillNeeded <= remainingMarks * 0.5;
+      // Average must be maintainable across remaining marks
+      const requiredRemaining = remainingMarks > 0
+        ? (th.t * totalMarks - enteredSum) / remainingMarks
+        : currentAvg;
+      const avgPathValid = currentAvg >= requiredRemaining;
+      if (qualPathValid && avgPathValid) {
+        projectedCls = th.label;
+        break;
+      }
+    }
+    cls = projectedCls;
+
+    eyebrow = 'Current projected classification';
+    titlePrefix = '';
+  }
+
+  document.getElementById('result-banner').className = 'result-banner ' + (bannerCls[cls]||'banner-neutral');
+  document.getElementById('result-eyebrow').textContent = eyebrow;
+  document.getElementById('result-title').textContent = titlePrefix + cls;
+  document.getElementById('result-sub').textContent = `Based on ${numReal} classification mark${numReal>1?'s':''} entered · Maintaining current average: ${avg.toFixed(1)}%`;
+
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-box"><div class="stat-label">Marks entered</div><div class="stat-val">${numReal}</div>${numReal > 2 ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">2 (Year 1) + ${(numReal - 2) / 2} module${(numReal - 2) / 2 !== 1 ? 's' : ''}</div>` : ''}</div>
+    <div class="stat-box"><div class="stat-label">Average</div><div class="stat-val">${avg.toFixed(1)}%</div></div>
+    <div class="stat-box"><div class="stat-label">First-class marks</div><div class="stat-val" style="color:var(--first-text)">${fc}</div></div>
+    <div class="stat-box"><div class="stat-label">Upper-second+ marks</div><div class="stat-val" style="color:#c04010">${uc}</div></div>`;
+
+  const chipsEl = document.getElementById('marks-chips');
+  chipsEl.innerHTML = '';
+  let currentPair = null;
+  marks.forEach((x, i) => {
+    if (i % 2 === 0) {
+      if (i === 0) {
+        const col = document.createElement('span');
+        col.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;margin-right:6px;justify-content:flex-end;';
+        const lbl = document.createElement('span');
+        lbl.style.cssText = 'font-size:9px;font-weight:400;color:var(--text-muted);opacity:0.5;font-style:italic;margin-bottom:3px;';
+        lbl.textContent = 'Year 1';
+        col.appendChild(lbl);
+        currentPair = document.createElement('span');
+        currentPair.style.cssText = 'display:inline-flex;flex-direction:row;gap:3px;';
+        col.appendChild(currentPair);
+        chipsEl.appendChild(col);
+      } else {
+        currentPair = document.createElement('span');
+        currentPair.style.cssText = 'display:inline-flex;gap:3px;margin-right:6px;';
+        chipsEl.appendChild(currentPair);
+      }
+    }
+    const span = document.createElement('span');
+    const gi = gradeInfo(x.mark);
+    span.className = `chip chip-${gi.cls}`;
+    span.textContent = Math.round(x.mark);
+    span.title = `Actual: ${Math.round(x.mark)}%`;
+    currentPair.appendChild(span);
+  });
+  // Add placeholder chips for blank modules (2 marks per module), grouped in pairs
+  const blankModules = currentCourses.filter((c, i) => c.level !== 100 && entered[i] === null).length;
+  for (let m = 0; m < blankModules; m++) {
+    const pair = document.createElement('span');
+    pair.style.cssText = 'display:inline-flex;gap:3px;margin-right:6px;';
+    for (let p = 0; p < 2; p++) {
+      const span = document.createElement('span');
+      span.className = 'chip chip-est';
+      span.textContent = '—';
+      span.title = 'Grade not yet entered';
+      pair.appendChild(span);
+    }
+    chipsEl.appendChild(pair);
+  }
+
+  document.getElementById('note-card').innerHTML = '';
+
+  const eligibility = checkUolEligibility(entered);
+
+  if (hasBlank) {
+    document.getElementById('grad-status-box').innerHTML = '';
+  } else {
+    renderEligibility(eligibility);
+  }
+
+  // Override classification for final outcomes when all grades are in
+  if (!hasBlank) {
+    if (eligibility.status === 'not-eligible') {
+      cls = 'No Award';
+    } else if (eligibility.status === 'unclassified') {
+      cls = 'Pass (Unclassified)';
+    }
+    document.getElementById('result-title').textContent = cls;
+    document.getElementById('result-banner').className = 'result-banner ' + (bannerCls[cls] || 'banner-neutral');
+  }
+
+  const inPassPath = eligibility.inPassPath;
+  const scenLabel  = document.querySelector('.scenarios-label');
+
+  if (inPassPath) {
+    // Pass-degree path: always show resit guidance
+    if (scenLabel) scenLabel.textContent = 'Your graduation options';
+    renderScenarios(buildPassDegreeScenarios(entered));
+  } else if (hasBlank) {
+    if (scenLabel) scenLabel.textContent = 'What you need for each classification';
+    const allMarks = buildMarks(entered, currentCourses, avg);
+    const scenarios = buildEmfssScenarios(allMarks, entered, currentCourses);
+    renderScenarios(scenarios);
+  } else {
+    document.getElementById('scenarios-section').classList.add('hidden');
+  }
+
+  panel.style.display = 'block';
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}), 60);
+}
+
+function calculatePsychology(entered, hasBlank) {
+  const totalCredits = currentCourses.reduce((s,c)=>s+c.credits,0); // 360
+  const vals = currentCourses.map((c,i)=>({credits:c.credits,mark:entered[i]})).filter(p=>p.mark!==null);
+  if (!vals.length) { alert('Please enter at least one mark.'); return; }
+
+  const enteredCredits = vals.reduce((s,p)=>s+p.credits,0);
+  const enteredWS = vals.reduce((s,p)=>s+p.mark*p.credits,0);
+  const weightedAvg = enteredWS / enteredCredits;
+
+  const failedModules = currentCourses.filter((c,i)=>entered[i]!==null&&entered[i]<40);
+  let cls = classifyPsychology(weightedAvg);
+  if (!hasBlank && failedModules.length > 0) cls = 'No Award';
+  const bannerMap = {
+    'First Class Honours':'banner-first',
+    'Upper Second Class Honours (2:1)':'banner-upper',
+    'Lower Second Class Honours (2:2)':'banner-lower',
+    'Third Class Honours':'banner-third',
+    'No Award':'banner-fail',
+    'Fail':'banner-fail'
+  };
+
+  const panel = document.getElementById('result-panel');
+  document.getElementById('result-banner').className = 'result-banner ' + (bannerMap[cls]||'banner-neutral');
+  document.getElementById('result-eyebrow').textContent = hasBlank ? 'Current projected classification' : 'Your classification';
+  document.getElementById('result-title').textContent = cls;
+  document.getElementById('result-sub').textContent = `Credit-weighted average: ${weightedAvg.toFixed(1)}% · ${enteredCredits} of 360 credits entered`;
+
+  const numReal = vals.length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-box"><div class="stat-label">Credits entered</div><div class="stat-val">${enteredCredits}</div></div>
+    <div class="stat-box"><div class="stat-label">Weighted avg</div><div class="stat-val">${weightedAvg.toFixed(1)}%</div></div>
+    <div class="stat-box"><div class="stat-label">Modules entered</div><div class="stat-val">${numReal}</div></div>
+    <div class="stat-box"><div class="stat-label">Credits remaining</div><div class="stat-val">${totalCredits-enteredCredits}</div></div>`;
+
+  document.getElementById('marks-chips').innerHTML = '';
+  document.querySelector('.marks-section-label').style.display = 'none';
+  document.getElementById('note-card').innerHTML = '';
+
+  if (!hasBlank) {
+    renderEligibility(checkPsychologyEligibility(entered));
+  } else {
+    document.getElementById('grad-status-box').innerHTML = '';
+  }
+
+  if (hasBlank) {
+    renderScenarios(buildPsychologyScenarios(entered));
+  } else {
+    document.getElementById('scenarios-section').classList.add('hidden');
+  }
+
+  panel.style.display = 'block';
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'start'}), 60);
+}
+
+init();
+
+document.addEventListener('wheel', function(e) {
+  if (document.activeElement && document.activeElement.type === 'number') {
+    document.activeElement.blur();
+  }
+}, { passive: false });
+</script>
+<footer style="text-align:center;padding:24px 16px;margin-top:48px;font-size:0.8rem;color:#888;border-top:1px solid #e5e7eb;">
+  Developed by <b>Sofiia Galushyna (Cohort 2027, PIR)</b> and the Digital Team @ Forward College.
+</footer>
+</body>
+</html>
